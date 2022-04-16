@@ -47,6 +47,10 @@ pod "coredns-78fcd69978-xwdt4" deleted
 ## Configuration
 `KUBECTL_SAFE_COMMANDS` is an environment variable that can either point to a file or be a csv of kubectl commands. 
 
+### Default Commands
+Kubectl-safe by default will only prompt on write commands. You can see default set of "safe" commands 
+    [here](https://github.com/rumstead/kubectl-safe/blob/c1ce432104844b460044653020b54bee7a3fc9d1/pkg/cmd/safe/types.go#L9).
+
 ### CSV example
 ```shell
 $ export KUBECTL_SAFE_COMMANDS=version,config
