@@ -21,5 +21,5 @@ func Confirm(verb string) bool {
 	if err != nil {
 		return false
 	}
-	return strings.ToLower(input) == "y"
+	return strings.ToLower(strings.TrimSpace(input)) == "y"
 }
