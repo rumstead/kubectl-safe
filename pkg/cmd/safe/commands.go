@@ -3,6 +3,7 @@ package safe
 import (
 	"bufio"
 	"fmt"
+	"k8s.io/klog/v2"
 	"os"
 	"strings"
 )
@@ -46,11 +47,12 @@ func getCommandsFromFile(commands string) (*Commands, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	klog.V(3).Infof("reading commands from %s.\n", commands)
 	scanner := bufio.NewScanner(file)
 	// scanner has a 64k limit on lines... i hope that is never reached
 	for scanner.Scan() {
 		token := scanner.Text()
+		klog.V(3).Infof("adding %s command to the safe list.\n", token)
 		readCommands.Add(token)
 	}
 
