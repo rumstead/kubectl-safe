@@ -13,14 +13,15 @@ go install github.com/rumstead/kubectl-safe@latest
 Coming soon
 
 ## Usage
-After installing, make sure your `$GOBIN` is on your path. You can also alias `kubectl safe` as `k` or `kubectl`.
+After installing, make sure your `$GOBIN` is on your path. 
 
-Use `kubectl safe` just like you would `kubectl`. 
-
+You can also alias `kubectl safe` as `k` or `kubectl`.
 ```shell
 alias k="kubectl safe"
 alias kubectl="kubectl safe"
 ```
+
+Use `kubectl safe` just like you would `kubectl`.
 
 ```shell
 $ kubectl safe get pod -n kube-system
