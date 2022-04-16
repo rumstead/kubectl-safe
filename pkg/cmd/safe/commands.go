@@ -62,7 +62,7 @@ func getCommandsFromFile(commands string) (*Commands, error) {
 
 func getCommandsFromSlice(cmds []string) (*Commands, error) {
 	commands := NewCommands()
-	for i, _ := range cmds {
+	for i := range cmds {
 		commands.Add(cmds[i])
 	}
 	return &commands, nil

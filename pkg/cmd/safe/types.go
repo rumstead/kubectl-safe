@@ -39,5 +39,7 @@ func (c *Commands) Contains(command string) bool {
 }
 
 func (c *Commands) Add(command string) {
-	c.safeCmds[command] = Empty
+	if command != "" {
+		c.safeCmds[command] = Empty
+	}
 }
