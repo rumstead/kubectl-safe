@@ -1,25 +1,16 @@
 apiVersion: krew.googlecontainertools.github.com/v1alpha2
 kind: Plugin
 metadata:
-  name: tree
+  name: safe
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/rumstead/kubectl-safe
-  shortDescription: Prompt before running edit commands
-  description: |
-    This plugin will prompt users before executing kubectl write commands
   platforms:
     - selector:
         matchLabels:
           os: darwin
           arch: amd64
       {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
-      bin: kubectl-safe
-    - selector:
-        matchLabels:
-          os: darwin
-          arch: arm64
-      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_darwin_arm64.tar.gz" .TagName }}
       bin: kubectl-safe
     - selector:
         matchLabels:
@@ -33,3 +24,5 @@ spec:
           arch: amd64
       {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
       bin: kubectl-safe.exe
+  shortDescription: Prompt before running edit commands
+  description: This plugin will prompt users before executing kubectl write commands
