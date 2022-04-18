@@ -1,10 +1,14 @@
 apiVersion: krew.googlecontainertools.github.com/v1alpha2
 kind: Plugin
 metadata:
-  name: safe
+  name: sick-pods
 spec:
   version: {{ .TagName }}
   homepage: https://github.com/rumstead/kubectl-safe
+  shortDescription: Prompts before running edit commands
+  description: |
+    This plugin allows users to confirm when they get prompted
+    on certain kubectl commands.
   platforms:
     - selector:
         matchLabels:
@@ -14,9 +18,21 @@ spec:
       bin: kubectl-safe
     - selector:
         matchLabels:
+          os: darwin
+          arch: arm64
+      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_darwin_arm64.tar.gz" .TagName }}
+      bin: kubectl-safe
+    - selector:
+        matchLabels:
           os: linux
           arch: amd64
       {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
+      bin: kubectl-safe
+    - selector:
+        matchLabels:
+          os: linux
+          arch: arm64
+      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_linux_arm64.tar.gz" .TagName }}
       bin: kubectl-safe
     - selector:
         matchLabels:
@@ -24,5 +40,3 @@ spec:
           arch: amd64
       {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
       bin: kubectl-safe.exe
-  shortDescription: Prompt before running edit commands
-  description: This plugin will prompt users before executing kubectl write commands
