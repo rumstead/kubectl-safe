@@ -1,10 +1,6 @@
 [![codecov](https://codecov.io/gh/rumstead/kubectl-safe/branch/main/graph/badge.svg)](https://codecov.io/gh/rumstead/kubectl-safe)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rumstead/kubectl-safe)](https://goreportcard.com/report/github.com/rumstead/kubectl-safe)
 
-# Prompt
-https://github.com/kubernetes-sigs/krew-index/blob/master/plugins/prompt.yaml
-
-
 # kubectl-safe
 A kubectl plugin to prevent shooting yourself in the foot with edit commands
 
@@ -81,3 +77,7 @@ I0416 15:07:54.686423   96875 commands.go:55] adding version command to the safe
 You are running a get against context docker-desktop, continue? [yY] n
 I0416 15:07:57.124902   96875 root.go:52] Not running command.
 ```
+
+
+## Similar plugins
+1. https://github.com/kubernetes-sigs/krew-index/blob/master/plugins/prompt.yaml
