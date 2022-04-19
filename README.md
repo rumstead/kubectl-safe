@@ -1,6 +1,10 @@
 [![codecov](https://codecov.io/gh/rumstead/kubectl-safe/branch/main/graph/badge.svg)](https://codecov.io/gh/rumstead/kubectl-safe)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rumstead/kubectl-safe)](https://goreportcard.com/report/github.com/rumstead/kubectl-safe)
 
+# Prompt
+https://github.com/kubernetes-sigs/krew-index/blob/master/plugins/prompt.yaml
+
+
 # kubectl-safe
 A kubectl plugin to prevent shooting yourself in the foot with edit commands
 
