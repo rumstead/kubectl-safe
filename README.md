@@ -10,7 +10,21 @@ A kubectl plugin to prevent shooting yourself in the foot with edit commands
 go install github.com/rumstead/kubectl-safe@latest
 ```
 ### Krew
-Coming soon
+```shell
+❯ kubectl krew install safe
+Updated the local copy of plugin index.
+Installing plugin: safe
+Installed plugin: safe
+\
+ | Use this plugin:
+ | 	kubectl safe
+ | Documentation:
+ | 	https://github.com/rumstead/kubectl-safe
+/
+WARNING: You installed plugin "safe" from the krew-index plugin repository.
+   These plugins are not audited for security by the Krew maintainers.
+   Run them at your own risk.
+```
 
 ## Usage
 After installing, make sure your `$GOBIN` is on your path. 
