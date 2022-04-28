@@ -29,10 +29,12 @@ WARNING: You installed plugin "safe" from the krew-index plugin repository.
 ## Usage
 After installing, make sure your `$GOBIN` is on your path. 
 
-You can also alias `kubectl safe` as `k` or `kubectl`.
+You can also alias `kubectl safe` as `k`, `kubectl`, or `ks`.
 ```shell
+# You should pick one :)
 alias k="kubectl safe"
 alias kubectl="kubectl safe"
+alias ks="kubectl safe"
 ```
 
 Use `kubectl safe` just like you would `kubectl`.
@@ -59,8 +61,21 @@ You are running a delete against context docker-desktop, continue? [yY] y
 pod "coredns-78fcd69978-xwdt4" deleted
 ```
 
+## Shell completion
+You can read more the [issue](https://github.com/rumstead/kubectl-safe/issues/17)
+### ZSH
+```shell
+alias ks="kubectl safe"
+functions[_kubectl-og]=$functions[_kubectl]
+
+_kubectl() {
+    words[$words[(i)safe]]=()
+    _kubectl-og "$words[*]"
+}
+```
+
 ## Configuration
-`KUBECTL_SAFE_COMMANDS` is an environment variable that can either point to a file or be a csv of kubectl commands. 
+`KUBECTL_SAFE_COMMANDS` is an environment variable that can either point to a file or be a csv of kubectl commands.
 
 ### Default Commands
 Kubectl-safe by default will only prompt on write commands. You can see default set of "safe" commands 
