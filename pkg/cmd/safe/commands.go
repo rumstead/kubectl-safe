@@ -9,6 +9,9 @@ import (
 )
 
 func IsVerbSafe(verb string) (bool, error) {
+	if verb == "" {
+		return true, nil
+	}
 	commands, err := getSafeCommands()
 	if err != nil {
 		return false, err

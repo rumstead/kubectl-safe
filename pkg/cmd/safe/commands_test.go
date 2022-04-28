@@ -20,6 +20,7 @@ func TestIsVerbSafe(t *testing.T) {
 	}{
 		{name: "DefaultSafeCommandTrue", args: args{verb: "get"}, want: true, wantErr: false},
 		{name: "DefaultSafeCommandFalse", args: args{verb: "delete"}, want: false, wantErr: false},
+		{name: "EmptyVerb", args: args{verb: ""}, want: true, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
