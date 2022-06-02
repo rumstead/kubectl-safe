@@ -17,12 +17,14 @@ limitations under the License.
 package cmd
 
 import (
+	"os"
+
+	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
+
 	"github.com/rumstead/kubectl-safe/pkg/cmd/safe"
 	"github.com/rumstead/kubectl-safe/pkg/exec"
 	"github.com/rumstead/kubectl-safe/pkg/prompt"
-	"github.com/spf13/cobra"
-	"k8s.io/klog/v2"
-	"os"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -31,23 +33,18 @@ var rootCmd = &cobra.Command{
 	Args:               cobra.ArbitraryArgs,
 	DisableFlagParsing: true,
 	FParseErrWhitelist: cobra.FParseErrWhitelist{UnknownFlags: true},
-	Short:              "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short:              "A kubectl plugin to prevent shooting yourself in the foot with edit commands",
+	Long:               "A kubectl plugin to prevent shooting yourself in the foot with edit commands",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		verb := ""
 		if len(args) > 0 {
 			verb = args[0]
 		}
-		safe, err := safe.IsVerbSafe(verb)
+		isSafe, err := safe.IsSafe(verb, args)
 		if err != nil {
 			return err
 		}
-		if !safe {
+		if !isSafe {
 			if !prompt.Confirm(verb) {
 				klog.Info("Not running command.")
 				os.Exit(0)
@@ -60,11 +57,7 @@ to quickly create a Cobra application.`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() error {
-	err := rootCmd.Execute()
-	if err != nil {
-		return err
-	}
-	return nil
+	return rootCmd.Execute()
 }
 
 func init() {
