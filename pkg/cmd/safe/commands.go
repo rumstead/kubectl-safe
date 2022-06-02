@@ -15,7 +15,7 @@ func IsSafe(verb string, args []string) (bool, error) {
 		return false, err
 	}
 	isDryRun := isDryRun(args)
-	return isVerbSafe && !isDryRun, nil
+	return isVerbSafe || isDryRun, nil
 }
 
 func isVerbSafe(verb string) (bool, error) {

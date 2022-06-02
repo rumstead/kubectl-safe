@@ -133,7 +133,7 @@ func TestIsSafe(t *testing.T) {
 	}{
 		{name: "DryRunNotSafe", args: args{
 			verb: "delete",
-			args: []string{"--dry-run=client"},
+			args: []string{"delete", "pod", "--dry-run=client"},
 		}, want: true, wantErr: false},
 		{name: "NotDryRunSafe", args: args{
 			verb: "get",
