@@ -24,7 +24,7 @@ func TestIsVerbSafe(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsVerbSafe(tt.args.verb)
+			got, err := isVerbSafe(tt.args.verb)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("IsVerbSafe() error = %v, wantErr %v", err, tt.wantErr)
 				return
