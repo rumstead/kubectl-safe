@@ -22,6 +22,7 @@ var (
 		"api-versions":  Empty,
 		"plugin":        Empty,
 		"version":       Empty,
+		"krew":          Empty,
 	}
 	DefaultSafeCommands = Commands{safeCmds: defaultCommands}
 	Empty               = Void{}
