@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestIsVerbSafe(t *testing.T) {
+func Test_isVerbSafe(t *testing.T) {
 	type args struct {
 		verb string
 	}
@@ -93,27 +93,22 @@ func Test_getSafeCommands(t *testing.T) {
 	}
 }
 
-func Test_paresSafeCommands(t *testing.T) {
+func Test_isDryRun(t *testing.T) {
 	type args struct {
-		commands string
+		cmd []string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *Commands
-		wantErr bool
+		name string
+		args args
+		want bool
 	}{
-		// TODO: Add test cases.
+		{name: "NotDryRun", args: args{cmd: []string{"delete", "pod", "foo"}}, want: false},
+		{name: "DryRun", args: args{cmd: []string{"create", "pod", "foo", "--dry-run=server"}}, want: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := paresSafeCommands(tt.args.commands)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("paresSafeCommands() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("paresSafeCommands() got = %v, want %v", got, tt.want)
+			if got := isDryRun(tt.args.cmd); got != tt.want {
+				t.Errorf("isDryRun() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -123,4 +118,38 @@ func getTestDataDir() string {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
 	return basepath + "/testdata/"
+}
+
+func TestIsSafe(t *testing.T) {
+	type args struct {
+		verb string
+		args []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		{name: "DryRunNotSafe", args: args{
+			verb: "delete",
+			args: []string{"--dry-run=client"},
+		}, want: true, wantErr: false},
+		{name: "NotDryRunSafe", args: args{
+			verb: "get",
+			args: []string{"get", "pod"},
+		}, want: true, wantErr: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := IsSafe(tt.args.verb, tt.args.args)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("IsSafe() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("IsSafe() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
