@@ -3,12 +3,22 @@ package safe
 import (
 	"bufio"
 	"fmt"
-	"k8s.io/klog/v2"
 	"os"
 	"strings"
+
+	"k8s.io/klog/v2"
 )
 
-func IsVerbSafe(verb string) (bool, error) {
+func IsSafe(verb string, args []string) (bool, error) {
+	isVerbSafe, err := isVerbSafe(verb)
+	if err != nil {
+		return false, err
+	}
+	isDryRun := isDryRun(args)
+	return isVerbSafe || isDryRun, nil
+}
+
+func isVerbSafe(verb string) (bool, error) {
 	if verb == "" {
 		return true, nil
 	}
@@ -17,6 +27,15 @@ func IsVerbSafe(verb string) (bool, error) {
 		return false, err
 	}
 	return commands.Contains(verb), nil
+}
+
+func isDryRun(cmd []string) bool {
+	for _, c := range cmd {
+		if strings.Contains(c, "--dry-run") {
+			return true
+		}
+	}
+	return false
 }
 
 func getSafeCommands() (*Commands, error) {
