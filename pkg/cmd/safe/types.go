@@ -3,6 +3,8 @@ package safe
 const (
 	// KubectlSafeCommands is a csv of commands or a path to a file
 	KubectlSafeCommands = "KUBECTL_SAFE_COMMANDS"
+	// KubectlSafeContexts is a csv of contexts or a path to a file
+	KubectlSafeContexts = "KUBECTL_SAFE_CONTEXTS"
 )
 
 var (
@@ -24,23 +26,29 @@ var (
 		"version":       Empty,
 		"krew":          Empty,
 	}
-	DefaultSafeCommands = Commands{safeCmds: defaultCommands}
+	defaultContexts = map[string]Void{
+		"minikube":        Empty,
+		"docker-desktop":  Empty,
+		"rancher-desktop": Empty,
+	}
+	DefaultSafeCommands = KubeCtlSafeMap{set: defaultCommands}
+	DefaultSafeContexts = KubeCtlSafeMap{set: defaultContexts}
 	Empty               = Void{}
 )
 
 type Void struct{}
 
-type Commands struct {
-	safeCmds map[string]Void
+type KubeCtlSafeMap struct {
+	set map[string]Void
 }
 
-func (c *Commands) Contains(command string) bool {
-	_, ok := c.safeCmds[command]
+func (c *KubeCtlSafeMap) Contains(command string) bool {
+	_, ok := c.set[command]
 	return ok
 }
 
-func (c *Commands) Add(command string) {
+func (c *KubeCtlSafeMap) Add(command string) {
 	if command != "" {
-		c.safeCmds[command] = Empty
+		c.set[command] = Empty
 	}
 }

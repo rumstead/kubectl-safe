@@ -43,11 +43,11 @@ func Test_getCommandsFromFile(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *Commands
+		want    *KubeCtlSafeMap
 		wantErr bool
 	}{
 		{name: "ValidFile", args: args{commands: "./testdata/valid-commands.txt"},
-			want: &Commands{safeCmds: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
+			want: &KubeCtlSafeMap{set: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
 		{name: "FileDoesntExist", args: args{commands: "foo"},
 			want: nil, wantErr: true},
 	}
@@ -69,14 +69,14 @@ func Test_getSafeCommands(t *testing.T) {
 	tests := []struct {
 		name    string
 		value   string
-		want    *Commands
+		want    *KubeCtlSafeMap
 		wantErr bool
 	}{
-		{name: "EnvOneValue", value: "one", want: &Commands{safeCmds: map[string]Void{"one": Empty}}, wantErr: false},
-		{name: "EnvManyValues", value: "one,two,three", want: &Commands{safeCmds: map[string]Void{"one": Empty, "two": Empty, "three": Empty}}, wantErr: false},
+		{name: "EnvOneValue", value: "one", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty}}, wantErr: false},
+		{name: "EnvManyValues", value: "one,two,three", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty, "two": Empty, "three": Empty}}, wantErr: false},
 		{name: "EnvNoValues", value: "", want: &DefaultSafeCommands, wantErr: false},
-		{name: "EnvEndInComma", value: "one,", want: &Commands{safeCmds: map[string]Void{"one": Empty}}, wantErr: false},
-		{name: "File", value: fmt.Sprintf("%svalid-commands.txt", getTestDataDir()), want: &Commands{safeCmds: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
+		{name: "EnvEndInComma", value: "one,", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty}}, wantErr: false},
+		{name: "File", value: fmt.Sprintf("%svalid-commands.txt", getTestDataDir()), want: &KubeCtlSafeMap{set: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

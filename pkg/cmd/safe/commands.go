@@ -7,15 +7,44 @@ import (
 	"strings"
 
 	"k8s.io/klog/v2"
+
+	"github.com/rumstead/kubectl-safe/pkg/exec"
 )
 
 func IsSafe(verb string, args []string) (bool, error) {
+	isContextSafe, err := isContextSafe()
+	if err != nil {
+		return false, err
+	}
+	if isContextSafe {
+		return true, nil
+	}
 	isVerbSafe, err := isVerbSafe(verb)
 	if err != nil {
 		return false, err
 	}
 	isDryRun := isDryRun(args)
 	return isVerbSafe || isDryRun, nil
+}
+
+func isContextSafe() (bool, error) {
+	context, err := exec.ExecCmd("kubectl", []string{"config", "current-context"}...)
+	if err != nil {
+		return false, err
+	}
+
+	safeContexts, err := getSafeContexts()
+	if err != nil {
+		return false, err
+	}
+	return safeContexts.Contains(context), nil
+}
+
+func getSafeContexts() (*KubeCtlSafeMap, error) {
+	if contexts := os.Getenv(KubectlSafeContexts); contexts != "" {
+		return parseSafeConfig(contexts)
+	}
+	return &DefaultSafeContexts, nil
 }
 
 func isVerbSafe(verb string) (bool, error) {
@@ -38,31 +67,31 @@ func isDryRun(cmd []string) bool {
 	return false
 }
 
-func getSafeCommands() (*Commands, error) {
+func getSafeCommands() (*KubeCtlSafeMap, error) {
 	if commands := os.Getenv(KubectlSafeCommands); commands != "" {
-		return paresSafeCommands(commands)
+		return parseSafeConfig(commands)
 	}
 	return &DefaultSafeCommands, nil
 }
 
-func paresSafeCommands(commands string) (*Commands, error) {
-	// commands can be a csv of strings or a file path
-	_, err := os.Stat(commands)
+func parseSafeConfig(safeConfig string) (*KubeCtlSafeMap, error) {
+	// safeConfig can be a csv of strings or a file path
+	_, err := os.Stat(safeConfig)
 	switch {
 	case os.IsNotExist(err):
-		cmds := strings.Split(commands, ",")
+		cmds := strings.Split(safeConfig, ",")
 		if len(cmds) >= 1 {
-			return getCommandsFromSlice(cmds)
+			return getConfigFromSlice(cmds)
 		}
-		return nil, fmt.Errorf("%s was provided by %s but its neither a word or existing file", commands, KubectlSafeCommands)
+		return nil, fmt.Errorf("%s was provided but its neither a word or existing file", safeConfig)
 	case err == nil:
-		return getCommandsFromFile(commands)
+		return getCommandsFromFile(safeConfig)
 	default:
 		return nil, err
 	}
 }
 
-func getCommandsFromFile(commands string) (*Commands, error) {
+func getCommandsFromFile(commands string) (*KubeCtlSafeMap, error) {
 	readCommands := NewCommands()
 	file, err := os.Open(commands)
 	defer file.Close()
@@ -84,7 +113,7 @@ func getCommandsFromFile(commands string) (*Commands, error) {
 	return &readCommands, nil
 }
 
-func getCommandsFromSlice(cmds []string) (*Commands, error) {
+func getConfigFromSlice(cmds []string) (*KubeCtlSafeMap, error) {
 	commands := NewCommands()
 	for i := range cmds {
 		commands.Add(cmds[i])
@@ -92,6 +121,6 @@ func getCommandsFromSlice(cmds []string) (*Commands, error) {
 	return &commands, nil
 }
 
-func NewCommands() Commands {
-	return Commands{safeCmds: make(map[string]Void)}
+func NewCommands() KubeCtlSafeMap {
+	return KubeCtlSafeMap{set: make(map[string]Void)}
 }
