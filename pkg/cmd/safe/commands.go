@@ -2,7 +2,9 @@ package safe
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 
@@ -51,11 +53,30 @@ func isVerbSafe(verb string) (bool, error) {
 	if verb == "" {
 		return true, nil
 	}
-	commands, err := getSafeCommands()
+
+	// first check if the verb is configured as unsafe
+	unsafeCommands, err := getUnSafeCommands()
 	if err != nil {
 		return false, err
 	}
-	return commands.Contains(verb), nil
+	if len(unsafeCommands.cmds) > 0 {
+		// if unsafeCommands contains the verb, it is unsafe
+		return !unsafeCommands.Contains(verb), nil
+	}
+	// second check if it configured as safe
+	safeCommands, err := getSafeCommands()
+	if err != nil {
+		return false, err
+	}
+	return safeCommands.Contains(verb), nil
+}
+
+func getUnSafeCommands() (*Commands, error) {
+	commands, err := parseCommands(KubectlUnsafeCommands)
+	if err != nil {
+		return nil, err
+	}
+	return commands, nil
 }
 
 func isDryRun(cmd []string) bool {
@@ -68,27 +89,30 @@ func isDryRun(cmd []string) bool {
 }
 
 func getSafeCommands() (*KubeCtlSafeMap, error) {
-	if commands := os.Getenv(KubectlSafeCommands); commands != "" {
-		return parseSafeConfig(commands)
+	commands, err := parseCommands(KubectlSafeCommands)
+	if err != nil {
+		return nil, err
 	}
-	return &DefaultSafeCommands, nil
+	if len(commands.cmds) == 0 {
+		return &DefaultSafeCommands, nil
+	}
+	return commands, nil
 }
 
-func parseSafeConfig(safeConfig string) (*KubeCtlSafeMap, error) {
-	// safeConfig can be a csv of strings or a file path
-	_, err := os.Stat(safeConfig)
-	switch {
-	case os.IsNotExist(err):
-		cmds := strings.Split(safeConfig, ",")
+func parseCommands(env string) (*KubeCtlSafeMap, error) {
+	commands := os.Getenv(env)
+	if commands == "" {
+		return &EmptyCommands, nil
+	}
+	// commands can be a csv of strings or a file path
+	if _, err := os.Stat(commands); errors.Is(err, fs.ErrNotExist) {
+		cmds := strings.Split(commands, ",")
 		if len(cmds) >= 1 {
 			return getConfigFromSlice(cmds)
 		}
-		return nil, fmt.Errorf("%s was provided but its neither a word or existing file", safeConfig)
-	case err == nil:
-		return getCommandsFromFile(safeConfig)
-	default:
-		return nil, err
+		return nil, fmt.Errorf("%s was provided by %s but its neither a word or existing file", commands, env)
 	}
+	return getCommandsFromFile(commands)
 }
 
 func getCommandsFromFile(commands string) (*KubeCtlSafeMap, error) {

@@ -1,8 +1,10 @@
 package safe
 
 const (
-	// KubectlSafeCommands is a csv of commands or a path to a file
+	// KubectlSafeCommands is a csv of commands or a path to a file containing a set of safe commands
 	KubectlSafeCommands = "KUBECTL_SAFE_COMMANDS"
+	// KubectlUnsafeCommands is a csv of commands or a path to a file containing a set of unsafe commands
+	KubectlUnsafeCommands = "KUBECTL_UNSAFE_COMMANDS"
 	// KubectlSafeContexts is a csv of contexts or a path to a file
 	KubectlSafeContexts = "KUBECTL_SAFE_CONTEXTS"
 )
@@ -34,6 +36,7 @@ var (
 	DefaultSafeCommands = KubeCtlSafeMap{set: defaultCommands}
 	DefaultSafeContexts = KubeCtlSafeMap{set: defaultContexts}
 	Empty               = Void{}
+	EmptyCommands       = Commands{}
 )
 
 type Void struct{}
