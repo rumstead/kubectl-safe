@@ -70,14 +70,15 @@ func Test_parseCommands(t *testing.T) {
 		name    string
 		value   string
 		want    *KubeCtlSafeMap
+		env     string
 		wantErr bool
 	}{
 		// safe commands
-		{name: "EnvOneValue", value: "one", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty}}, wantErr: false},
-		{name: "EnvManyValues", value: "one,two,three", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty, "two": Empty, "three": Empty}}, wantErr: false},
-		{name: "EnvNoValues", value: "", want: &DefaultSafeCommands, wantErr: false},
-		{name: "EnvEndInComma", value: "one,", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty}}, wantErr: false},
-		{name: "File", value: fmt.Sprintf("%svalid-commands.txt", getTestDataDir()), want: &KubeCtlSafeMap{set: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
+		{name: "EnvOneValue", value: "one", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty}}, wantErr: false, env: KubectlSafeCommands},
+		{name: "EnvManyValues", value: "one,two,three", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty, "two": Empty, "three": Empty}}, wantErr: false, env: KubectlSafeCommands},
+		{name: "EnvNoValues", value: "", want: &EmptyCommands, wantErr: false, env: KubectlSafeCommands},
+		{name: "EnvEndInComma", value: "one,", want: &KubeCtlSafeMap{set: map[string]Void{"one": Empty}}, wantErr: false, env: KubectlSafeCommands},
+		{name: "File", value: fmt.Sprintf("%svalid-commands.txt", getTestDataDir()), want: &KubeCtlSafeMap{set: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false, env: KubectlSafeCommands},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

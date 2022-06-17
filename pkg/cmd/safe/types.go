@@ -36,7 +36,7 @@ var (
 	DefaultSafeCommands = KubeCtlSafeMap{set: defaultCommands}
 	DefaultSafeContexts = KubeCtlSafeMap{set: defaultContexts}
 	Empty               = Void{}
-	EmptyCommands       = Commands{}
+	EmptyCommands       = KubeCtlSafeMap{}
 )
 
 type Void struct{}
