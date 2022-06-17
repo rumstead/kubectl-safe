@@ -2,7 +2,9 @@ package safe
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 
@@ -22,11 +24,29 @@ func isVerbSafe(verb string) (bool, error) {
 	if verb == "" {
 		return true, nil
 	}
-	commands, err := getSafeCommands()
+
+	// first check if the verb is configured as unsafe
+	unsafeCommands, err := getUnSafeCommands()
 	if err != nil {
 		return false, err
 	}
-	return commands.Contains(verb), nil
+	if unsafeCommands.Contains(verb) {
+		return false, nil
+	}
+	// second check if it configured as safe
+	safeCommands, err := getSafeCommands()
+	if err != nil {
+		return false, err
+	}
+	return safeCommands.Contains(verb), nil
+}
+
+func getUnSafeCommands() (*Commands, error) {
+	commands, err := parseCommands(KubectlUnsafeCommands)
+	if err != nil {
+		return nil, err
+	}
+	return commands, nil
 }
 
 func isDryRun(cmd []string) bool {
@@ -39,27 +59,30 @@ func isDryRun(cmd []string) bool {
 }
 
 func getSafeCommands() (*Commands, error) {
-	if commands := os.Getenv(KubectlSafeCommands); commands != "" {
-		return paresSafeCommands(commands)
+	commands, err := parseCommands(KubectlSafeCommands)
+	if err != nil {
+		return nil, err
 	}
-	return &DefaultSafeCommands, nil
+	if len(commands.cmds) == 0 {
+		return &DefaultSafeCommands, nil
+	}
+	return commands, nil
 }
 
-func paresSafeCommands(commands string) (*Commands, error) {
+func parseCommands(env string) (*Commands, error) {
+	commands := os.Getenv(env)
+	if commands == "" {
+		return &EmptyCommands, nil
+	}
 	// commands can be a csv of strings or a file path
-	_, err := os.Stat(commands)
-	switch {
-	case os.IsNotExist(err):
+	if _, err := os.Stat(commands); errors.Is(err, fs.ErrNotExist) {
 		cmds := strings.Split(commands, ",")
 		if len(cmds) >= 1 {
 			return getCommandsFromSlice(cmds)
 		}
-		return nil, fmt.Errorf("%s was provided by %s but its neither a word or existing file", commands, KubectlSafeCommands)
-	case err == nil:
-		return getCommandsFromFile(commands)
-	default:
-		return nil, err
+		return nil, fmt.Errorf("%s was provided by %s but its neither a word or existing file", commands, env)
 	}
+	return getCommandsFromFile(commands)
 }
 
 func getCommandsFromFile(commands string) (*Commands, error) {
@@ -93,5 +116,5 @@ func getCommandsFromSlice(cmds []string) (*Commands, error) {
 }
 
 func NewCommands() Commands {
-	return Commands{safeCmds: make(map[string]Void)}
+	return Commands{cmds: make(map[string]Void)}
 }

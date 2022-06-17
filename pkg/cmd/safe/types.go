@@ -1,8 +1,10 @@
 package safe
 
 const (
-	// KubectlSafeCommands is a csv of commands or a path to a file
+	// KubectlSafeCommands is a csv of commands or a path to a file containing a set of safe commands
 	KubectlSafeCommands = "KUBECTL_SAFE_COMMANDS"
+	// KubectlUnsafeCommands is a csv of commands or a path to a file containing a set of unsafe commands
+	KubectlUnsafeCommands = "KUBECTL_UNSAFE_COMMANDS"
 )
 
 var (
@@ -24,23 +26,24 @@ var (
 		"version":       Empty,
 		"krew":          Empty,
 	}
-	DefaultSafeCommands = Commands{safeCmds: defaultCommands}
+	DefaultSafeCommands = Commands{cmds: defaultCommands}
 	Empty               = Void{}
+	EmptyCommands       = Commands{}
 )
 
 type Void struct{}
 
 type Commands struct {
-	safeCmds map[string]Void
+	cmds map[string]Void
 }
 
 func (c *Commands) Contains(command string) bool {
-	_, ok := c.safeCmds[command]
+	_, ok := c.cmds[command]
 	return ok
 }
 
 func (c *Commands) Add(command string) {
 	if command != "" {
-		c.safeCmds[command] = Empty
+		c.cmds[command] = Empty
 	}
 }

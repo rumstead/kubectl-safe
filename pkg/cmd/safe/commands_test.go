@@ -47,7 +47,7 @@ func Test_getCommandsFromFile(t *testing.T) {
 		wantErr bool
 	}{
 		{name: "ValidFile", args: args{commands: "./testdata/valid-commands.txt"},
-			want: &Commands{safeCmds: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
+			want: &Commands{cmds: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
 		{name: "FileDoesntExist", args: args{commands: "foo"},
 			want: nil, wantErr: true},
 	}
@@ -65,29 +65,31 @@ func Test_getCommandsFromFile(t *testing.T) {
 	}
 }
 
-func Test_getSafeCommands(t *testing.T) {
+func Test_parseCommands(t *testing.T) {
 	tests := []struct {
 		name    string
 		value   string
 		want    *Commands
+		env     string
 		wantErr bool
 	}{
-		{name: "EnvOneValue", value: "one", want: &Commands{safeCmds: map[string]Void{"one": Empty}}, wantErr: false},
-		{name: "EnvManyValues", value: "one,two,three", want: &Commands{safeCmds: map[string]Void{"one": Empty, "two": Empty, "three": Empty}}, wantErr: false},
-		{name: "EnvNoValues", value: "", want: &DefaultSafeCommands, wantErr: false},
-		{name: "EnvEndInComma", value: "one,", want: &Commands{safeCmds: map[string]Void{"one": Empty}}, wantErr: false},
-		{name: "File", value: fmt.Sprintf("%svalid-commands.txt", getTestDataDir()), want: &Commands{safeCmds: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false},
+		// safe commands
+		{name: "EnvOneValue", value: "one", want: &Commands{cmds: map[string]Void{"one": Empty}}, wantErr: false, env: KubectlSafeCommands},
+		{name: "EnvManyValues", value: "one,two,three", want: &Commands{cmds: map[string]Void{"one": Empty, "two": Empty, "three": Empty}}, wantErr: false, env: KubectlSafeCommands},
+		{name: "EnvNoValues", value: "", want: &EmptyCommands, wantErr: false, env: KubectlSafeCommands},
+		{name: "EnvEndInComma", value: "one,", want: &Commands{cmds: map[string]Void{"one": Empty}}, wantErr: false, env: KubectlSafeCommands},
+		{name: "File", value: fmt.Sprintf("%svalid-commands.txt", getTestDataDir()), want: &Commands{cmds: map[string]Void{"get": Empty, "list": Empty, "version": Empty}}, wantErr: false, env: KubectlSafeCommands},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv(KubectlSafeCommands, tt.value)
-			got, err := getSafeCommands()
+			t.Setenv(tt.env, tt.value)
+			got, err := parseCommands(tt.env)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("getSafeCommands() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("parseCommands() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getSafeCommands() got = %v, want %v", got, tt.want)
+				t.Errorf("parseCommands() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -126,22 +128,33 @@ func TestIsSafe(t *testing.T) {
 		args []string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    bool
-		wantErr bool
+		name     string
+		args     args
+		want     bool
+		wantErr  bool
+		env      string
+		envValue string
 	}{
 		{name: "DryRunNotSafe", args: args{
 			verb: "delete",
 			args: []string{"delete", "pod", "--dry-run=client"},
-		}, want: true, wantErr: false},
+		}, want: true, wantErr: false, env: "foo", envValue: ""},
 		{name: "NotDryRunSafe", args: args{
 			verb: "get",
 			args: []string{"get", "pod"},
-		}, want: true, wantErr: false},
+		}, want: true, wantErr: false, env: "foo", envValue: ""},
+		{name: "SetUnsafeCommands", args: args{
+			verb: "delete",
+			args: []string{"delete", "pod"},
+		}, want: false, wantErr: false, env: KubectlUnsafeCommands, envValue: "delete"},
+		{name: "OverrideSafeCommands", args: args{
+			verb: "delete",
+			args: []string{"delete", "pod"},
+		}, want: true, wantErr: false, env: KubectlSafeCommands, envValue: "delete"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv(tt.env, tt.envValue)
 			got, err := IsSafe(tt.args.verb, tt.args.args)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("IsSafe() error = %v, wantErr %v", err, tt.wantErr)
