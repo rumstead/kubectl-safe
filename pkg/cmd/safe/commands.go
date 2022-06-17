@@ -30,8 +30,9 @@ func isVerbSafe(verb string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if unsafeCommands.Contains(verb) {
-		return false, nil
+	if len(unsafeCommands.cmds) > 0 {
+		// if unsafeCommands contains the verb, it is unsafe
+		return !unsafeCommands.Contains(verb), nil
 	}
 	// second check if it configured as safe
 	safeCommands, err := getSafeCommands()

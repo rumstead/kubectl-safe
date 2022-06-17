@@ -76,12 +76,16 @@ _kubectl() {
 
 ## Configuration
 `KUBECTL_SAFE_COMMANDS` is an environment variable that can either point to a file or be a csv of kubectl commands.
+`KUBECTL_UNSAFE_COMMANDS` is an environment variable that can either point to a file or be a csv of kubectl commands.
+
+*NOTE*: `KUBECTL_UNSAFE_COMMANDS` takes precedence 
 
 ### Default Commands
 Kubectl-safe by default will only prompt on write commands. You can see default set of "safe" commands 
     [here](https://github.com/rumstead/kubectl-safe/blob/c1ce432104844b460044653020b54bee7a3fc9d1/pkg/cmd/safe/types.go#L9).
 
 ### CSV example
+#### Kube Safe Commands
 ```shell
 $ export KUBECTL_SAFE_COMMANDS=version,config
 $ kubectl safe get pod
@@ -92,6 +96,19 @@ Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.5", GitCom
 Server Version: version.Info{Major:"1", Minor:"22", GitVersion:"v1.22.5", GitCommit:"5c99e2ac2ff9a3c549d9ca665e7bc05a3e18f07e", GitTreeState:"clean", BuildDate:"2021-12-16T08:32:32Z", GoVersion:"go1.16.12", Compiler:"gc", Platform:"linux/amd64"}
 $ kubectl safe config current-context
 docker-desktop
+```
+#### Kube Unsafe Commands
+```shell
+$ export KUBECTL_UNSAFE_COMMANDS=version,get
+$ kubectl safe get pod
+You are running a get against context rancher-desktop, continue? [yY] y
+No resources found in default namespace.
+$ kubectl safe version                         
+You are running a version against context rancher-desktop, continue? [yY] y
+Client Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.5", GitCommit:"c285e781331a3785a7f436042c65c5641ce8a9e9", GitTreeState:"clean", BuildDate:"2022-03-16T15:58:47Z", GoVersion:"go1.17.8", Compiler:"gc", Platform:"darwin/amd64"}
+Server Version: version.Info{Major:"1", Minor:"23", GitVersion:"v1.23.6+k3s1", GitCommit:"418c3fa858b69b12b9cefbcff0526f666a6236b9", GitTreeState:"clean", BuildDate:"2022-04-28T22:16:18Z", GoVersion:"go1.17.5", Compiler:"gc", Platform:"linux/amd64"}
+$ kubectl safe delete pod -n kube-system  coredns-d76bd69b-4cngl
+pod "coredns-d76bd69b-4cngl" deleted
 ```
 ### File example
 ```shell

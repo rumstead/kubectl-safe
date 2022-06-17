@@ -147,6 +147,10 @@ func TestIsSafe(t *testing.T) {
 			verb: "delete",
 			args: []string{"delete", "pod"},
 		}, want: false, wantErr: false, env: KubectlUnsafeCommands, envValue: "delete"},
+		{name: "SetUnsafeCommandsDiffer", args: args{
+			verb: "delete",
+			args: []string{"delete", "pod"},
+		}, want: true, wantErr: false, env: KubectlUnsafeCommands, envValue: "apply"},
 		{name: "OverrideSafeCommands", args: args{
 			verb: "delete",
 			args: []string{"delete", "pod"},
