@@ -63,15 +63,21 @@ pod "coredns-78fcd69978-xwdt4" deleted
 
 ## Shell completion
 You can read more the [issue](https://github.com/rumstead/kubectl-safe/issues/17)
-### ZSH
+Add the below script anywhere in your path with the executable bit set.
 ```shell
-alias ks="kubectl safe"
-functions[_kubectl-og]=$functions[_kubectl]
+#!/usr/bin/env bash
 
-_kubectl() {
-    words[$words[(i)safe]]=()
-    _kubectl-og "$words[*]"
-}
+# If we are completing a flag, use Cobra's builtin completion system.
+# To know if we are completing a flag we need the last argument starts with a `-` and does not contain an `=`
+args=("$@")
+lastArg=${args[((${#args[@]}-1))]}
+if [[ "$lastArg" == -* ]]; then
+   if [[ "$lastArg" != *=* ]]; then
+      kubectl safe __complete "$@"
+   fi
+else
+   kubectl __complete "$@"
+fi
 ```
 
 ## Configuration
