@@ -10,33 +10,13 @@ spec:
     This plugin allows users to confirm when they get prompted
     on certain kubectl commands.
   platforms:
-    - selector:
-        matchLabels:
-          os: darwin
-          arch: amd64
-      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_darwin_amd64.tar.gz" .TagName }}
-      bin: kubectl-safe
-    - selector:
-        matchLabels:
-          os: darwin
-          arch: arm64
-      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_darwin_arm64.tar.gz" .TagName }}
-      bin: kubectl-safe
-    - selector:
-        matchLabels:
-          os: linux
-          arch: amd64
-      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_linux_amd64.tar.gz" .TagName }}
-      bin: kubectl-safe
-    - selector:
-        matchLabels:
-          os: linux
-          arch: arm64
-      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_linux_arm64.tar.gz" .TagName }}
-      bin: kubectl-safe
-    - selector:
-        matchLabels:
-          os: windows
-          arch: amd64
-      {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/download/{{ .TagName }}/kubectl-safe_{{ .TagName }}_windows_amd64.tar.gz" .TagName }}
-      bin: kubectl-safe.exe
+  - selector:
+      matchExpressions:
+        - key: os
+          operator: In
+          values:
+            - darwin
+            - linux
+            - windows
+    {{addURIAndSha "https://github.com/rumstead/kubectl-safe/releases/{{ .TagName }}.tar.gz" .TagName }}
+    bin: kubectl-safe
