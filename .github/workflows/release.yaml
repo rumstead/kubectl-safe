@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: Setup Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GOLANG_VERSION }}
       - name: GoReleaser
