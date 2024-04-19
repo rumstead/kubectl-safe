@@ -89,10 +89,15 @@ func parseCommands(env string) (*Commands, error) {
 func getCommandsFromFile(commands string) (*Commands, error) {
 	readCommands := NewCommands()
 	file, err := os.Open(commands)
-	defer file.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			klog.Errorf("error closing file %s: %v", file.Name(), err)
+		}
+	}(file)
 	klog.V(3).Infof("reading commands from %s.\n", commands)
 	scanner := bufio.NewScanner(file)
 	// scanner has a 64k limit on lines... i hope that is never reached

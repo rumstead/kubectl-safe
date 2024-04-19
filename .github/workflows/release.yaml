@@ -5,7 +5,7 @@ on:
       - '*.*.*'
 env:
   # Golang version to use across CI steps
-  GOLANG_VERSION: '1.18'
+  GOLANG_VERSION: '1.22'
 
 jobs:
   goreleaser:
@@ -25,4 +25,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
       - name: Update new version in krew-index
-        uses: rajatjindal/krew-release-bot@v0.0.43
+        uses: rajatjindal/krew-release-bot@v0.0.46
