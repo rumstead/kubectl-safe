@@ -16,7 +16,6 @@ var (
 		"top":           Empty,
 		"config":        Empty,
 		"logs":          Empty,
-		"cp":            Empty,
 		"diff":          Empty,
 		"completion":    Empty,
 		"alpha":         Empty,

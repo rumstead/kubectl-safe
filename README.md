@@ -53,31 +53,37 @@ storage-provisioner                      1/1     Running   20 (2d4h ago)    57d
 vpnkit-controller                        1/1     Running   1378 (16m ago)   57d
 
 $ kubectl safe delete pod -n kube-system coredns-78fcd69978-xwdt4
-You are running a delete against context docker-desktop, continue? [yY] n
+You are running a delete against context docker-desktop (namespace kube-system), continue? [yY] n
 I0416 14:40:50.966746   85123 root.go:52] Not running command.
 
 $ kubectl safe delete pod -n kube-system coredns-78fcd69978-xwdt4
-You are running a delete against context docker-desktop, continue? [yY] y
+You are running a delete against context docker-desktop (namespace kube-system), continue? [yY] y
 pod "coredns-78fcd69978-xwdt4" deleted
 ```
 
 ## Shell completion
-You can read more the [issue](https://github.com/rumstead/kubectl-safe/issues/17)
-Add the below script anywhere in your path with the executable bit set.
-```shell
-#!/usr/bin/env bash
+Shell completion works out of the box. `kubectl-safe` proxies `__complete` and `__completeNoDesc`
+requests directly to `kubectl`, so completions for resources, namespaces, and flags all work
+transparently with no extra setup.
 
-# If we are completing a flag, use Cobra's builtin completion system.
-# To know if we are completing a flag we need the last argument starts with a `-` and does not contain an `=`
-args=("$@")
-lastArg=${args[((${#args[@]}-1))]}
-if [[ "$lastArg" == -* ]]; then
-   if [[ "$lastArg" != *=* ]]; then
-      kubectl safe __complete "$@"
-   fi
-else
-   kubectl __complete "$@"
-fi
+If you use an alias (e.g., `alias k="kubectl safe"`), you can wire up completions:
+```shell
+# bash
+complete -o default -F __start_kubectl k
+
+# zsh
+compdef k=kubectl
+```
+
+## Flags
+
+| Flag | Description |
+|------|-------------|
+| `--yes`, `-y` | Skip the confirmation prompt (useful for scripts/CI) |
+
+```shell
+$ kubectl safe delete pod -n kube-system coredns-78fcd69978-xwdt4 --yes
+pod "coredns-78fcd69978-xwdt4" deleted
 ```
 
 ## Configuration
